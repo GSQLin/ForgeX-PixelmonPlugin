@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+}
+
+group 'io.name.forgex.ForgeX'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    compileOnly(fileTree("libs"))
+}
+
+test {
+    useJUnitPlatform()
+}
+
+processResources {
+    setFilteringCharset("UTF-8")
+    expand project.properties
+}

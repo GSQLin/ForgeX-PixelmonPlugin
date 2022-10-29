@@ -1,0 +1,5 @@
+name: ForgeX
+main: ${group}
+version: ${version}
+api-version: 1.13
+description: 巴嘎
