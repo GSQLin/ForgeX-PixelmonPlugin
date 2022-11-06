@@ -2,8 +2,10 @@ package io.name.forgex;
 
 import com.pixelmonmod.pixelmon.Pixelmon;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 public class PixelUtil {
     public static String pixelVersion = Pixelmon.getVersion();
@@ -29,16 +31,62 @@ public class PixelUtil {
     public static Player getPlayer(net.minecraft.entity.player.EntityPlayerMP entityPlayerMP){
         return entityPlayerMP.getBukkitEntity().getPlayer();
     }
-    public static Object getField(Class<?> c,Object o,String name){
-        /*用于获取1.16.5和1.12.2同名事件获取不同的类型,然后再把返回来的object转成对应的类*/
+    /*
+    获取一个对象里边的变量,如果变量类似arraylist这类的你修改了,对象内的也一样,他们是同一个变量
+    */
+    public static Object getField(Class<?> c,Object o,String name) throws Exception {
         Object ot = null;
-        try {
-            Field f = c.getDeclaredField(name);
-            f.setAccessible(true);
-            ot = f.get(o);
-        } catch (Exception e) {
-            e.printStackTrace();
+        while (ot == null){
+            for (Field f:c.getDeclaredFields()){
+                if (f.getName().equals(name)){
+                    f.setAccessible(true);
+                    ot = f.get(o);
+                    break;
+                }
+            }
+            c = c.getSuperclass();
+            if (c == null) break;
         }
         return ot;
+    }
+    //获取一个对象中的方法(自动往父级上找到为止(最后没有则返回null))
+    public static Method getMethod(Class<?> c,String name,Class<?>... a) throws Exception {
+        Method method = null;
+        do {
+            for (Method met : c.getDeclaredMethods()) {
+                if (met.getName().equals(name)) {
+                    met.setAccessible(true);
+                    method = c.getDeclaredMethod(name, a);
+                    break;
+                }
+            }
+            c = c.getSuperclass();
+        } while (c != null);
+        return method;
+    }
+    //对一个对象中修改里边的变量
+    public static void setVariable(Class<?> c,Object o,String name,Object value) throws Exception {
+        do {
+            for (Field f:c.getDeclaredFields()){
+                if (f.getName().equals(name)){
+                    f.setAccessible(true);
+                    f.set(o,value);
+                    break;
+                }
+            }
+            c = c.getSuperclass();
+        }while (c != null);
+    }
+    //模仿CraftItemStack类中的方法asBukkitCopy
+    public static ItemStack asBukkitCopy(net.minecraft.item.ItemStack itemStack) throws Exception {
+        Class<?> craftItemStack;
+        if (PixelUtil.pixelVersion.equalsIgnoreCase("8.4.2")){
+            craftItemStack = Class.forName("org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack");
+        }else{
+            craftItemStack = Class.forName("org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack");
+        }
+
+        Method met = PixelUtil.getMethod(craftItemStack,"asBukkitCopy",net.minecraft.item.ItemStack.class);
+        return (ItemStack) met.invoke(craftItemStack, itemStack);
     }
 }
