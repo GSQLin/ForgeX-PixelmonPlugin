@@ -1,6 +1,7 @@
 package io.name.forgex;
 
 import com.pixelmonmod.pixelmon.Pixelmon;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -9,6 +10,7 @@ import java.lang.reflect.Method;
 
 public class PixelUtil {
     public static String pixelVersion = Pixelmon.getVersion();
+    public static String bukkitVersion = Bukkit.getBukkitVersion().contains("1.12.2")? "1.12.2" : "1.16.5";
 
     //不要用导入,要用静态
     public static com.pixelmonmod.pixelmon.api.storage.PlayerPartyStorage getPlayerPartyStorage(net.minecraft.entity.player.ServerPlayerEntity p){

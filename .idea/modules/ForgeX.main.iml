@@ -4,9 +4,9 @@
     <facet type="minecraft" name="Minecraft">
       <configuration>
         <autoDetectTypes>
-          <platformType>BUKKIT</platformType>
-          <platformType>FORGE</platformType>
           <platformType>MCP</platformType>
+          <platformType>FORGE</platformType>
+          <platformType>BUKKIT</platformType>
         </autoDetectTypes>
       </configuration>
     </facet>
