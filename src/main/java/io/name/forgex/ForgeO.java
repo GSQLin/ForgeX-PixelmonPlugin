@@ -7,9 +7,9 @@ import org.bukkit.event.Listener;
 
 public class ForgeO implements Listener {
     @EventHandler
-    public void onForgeOld(catserver.api.bukkit.event.ForgeEvent event){
-        if ((Object)event.getForgeEvent() instanceof BeatWildPixelmonEvent){
-            BeatWildPixelmonEvent e = (BeatWildPixelmonEvent) (Object)event.getForgeEvent();
+    public void onForgeOld(catserver.api.bukkit.event.ForgeEvent event) throws Exception {
+        if (ForgeX.getForgeEvent.invoke(event) instanceof BeatWildPixelmonEvent){
+            BeatWildPixelmonEvent e = (BeatWildPixelmonEvent) ForgeX.getForgeEvent.invoke(event);
             /*这个事件的玩家再两个不同版本下是不同类的所以获取方式如下
             当你翻看当你翻看BeatWildPixelmonEvent这类的时候可以发现1这类的时候可以发现1.12.2
             和1.16.5版本下的这个事件里面有一个变量player 1.12.2和
