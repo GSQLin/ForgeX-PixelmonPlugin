@@ -12,6 +12,18 @@ public class PixelUtil {
     public static String pixelVersion = Pixelmon.getVersion();
     public static String bukkitVersion = Bukkit.getBukkitVersion().contains("1.12.2")? "1.12.2" : "1.16.5";
 
+    //forgeevent的获取
+    static String cls = PixelUtil.bukkitVersion.equalsIgnoreCase("1.12.2") ?
+            "catserver.api.bukkit.event.ForgeEvent" : "catserver.api.bukkit.ForgeEventV2";
+    public static Method getForgeEventMethod(){
+        try {
+            return PixelUtil.getMethod(Class.forName(cls), "getForgeEvent");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     //不要用导入,要用静态
     public static com.pixelmonmod.pixelmon.api.storage.PlayerPartyStorage getPlayerPartyStorage(net.minecraft.entity.player.ServerPlayerEntity p){
         return com.pixelmonmod.pixelmon.api.storage.StorageProxy.getParty(p);
@@ -38,51 +50,55 @@ public class PixelUtil {
     */
     public static Object getField(Class<?> c,Object o,String name) throws Exception {
         Object ot = null;
-        while (ot == null){
-            for (Field f:c.getDeclaredFields()){
-                if (f.getName().equals(name)){
-                    f.setAccessible(true);
-                    ot = f.get(o);
-                    break;
-                }
+        Field f = null;
+        while (f == null){
+            try {
+                f = c.getDeclaredField(name);
+            }catch (Exception e){
+                if (c.getSuperclass() == null) break;
+                c = c.getSuperclass();
             }
-            c = c.getSuperclass();
-            if (c == null) break;
+        }
+        if (f != null){
+            f.setAccessible(true);
+            ot = f.get(o);
         }
         return ot;
     }
     //获取一个对象中的方法(自动往父级上找到为止(最后没有则返回null))
-    public static Method getMethod(Class<?> c,String name,Class<?>... a) throws Exception {
+    public static Method getMethod(Class<?> c,String name,Class<?>... a) {
         Method method = null;
-        do {
-            for (Method met : c.getDeclaredMethods()) {
-                if (met.getName().equals(name)) {
-                    met.setAccessible(true);
-                    method = c.getDeclaredMethod(name, a);
-                    break;
-                }
+        while (method == null){
+            try {
+                method = c.getDeclaredMethod(name, a);
+            }catch (Exception e){
+                if (c.getSuperclass() == null) break;
+                c = c.getSuperclass();
             }
-            c = c.getSuperclass();
-        } while (c != null);
+        }
+        if (method != null) method.setAccessible(true);
         return method;
     }
     //对一个对象中修改里边的变量
     public static void setVariable(Class<?> c,Object o,String name,Object value) throws Exception {
-        do {
-            for (Field f:c.getDeclaredFields()){
-                if (f.getName().equals(name)){
-                    f.setAccessible(true);
-                    f.set(o,value);
-                    break;
-                }
+        Field f = null;
+        while (f == null){
+            try {
+                f = c.getDeclaredField(name);
+            }catch (Exception e){
+                if (c.getSuperclass() == null) break;
+                c = c.getSuperclass();
             }
-            c = c.getSuperclass();
-        }while (c != null);
+        }
+        if (f != null) {
+            f.setAccessible(true);
+            f.set(o,value);
+        }
     }
     //模仿CraftItemStack类中的方法asBukkitCopy
     public static ItemStack asBukkitCopy(net.minecraft.item.ItemStack itemStack) throws Exception {
         Class<?> craftItemStack;
-        if (PixelUtil.pixelVersion.equalsIgnoreCase("8.4.2")){
+        if (PixelUtil.bukkitVersion.equalsIgnoreCase("1.12.2")){
             craftItemStack = Class.forName("org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack");
         }else{
             craftItemStack = Class.forName("org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack");
