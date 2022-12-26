@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 public class PixelUtil {
     public static String pixelVersion = Pixelmon.getVersion();
     public static String bukkitVersion = Bukkit.getBukkitVersion().contains("1.12.2")? "1.12.2" : "1.16.5";
-    public static Method forgeEventMethod = getForgeEventMethod();
+    public static Method forgeEventMethod;
 
     //forgeevent的获取
     static String cls = PixelUtil.bukkitVersion.equalsIgnoreCase("1.12.2") ?
