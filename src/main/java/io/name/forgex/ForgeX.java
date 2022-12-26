@@ -5,12 +5,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.lang.reflect.Method;
 
 public class ForgeX extends JavaPlugin {
-    static Method getForgeEvent;
-
     @Override
     public void onEnable() {
-        getForgeEvent = PixelUtil.getForgeEventMethod();
-
         if (PixelUtil.bukkitVersion.equalsIgnoreCase("1.12.2")){
             getServer().getPluginManager().registerEvents(new ForgeO(),this);
         }else{
