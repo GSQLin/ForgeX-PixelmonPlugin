@@ -25,6 +25,13 @@ public class PixelUtil {
         return null;
     }
 
+    public static Object getPlayerPartyStorage(Object p){
+        if (PixelUtil.bukkitVersion.equalsIgnoreCase("1.12.2")){
+            return getPlayerPartyStorage((net.minecraft.entity.player.EntityPlayerMP)p);
+        }else{
+            return getPlayerPartyStorage((net.minecraft.entity.player.ServerPlayerEntity)p);
+        }
+    }
     //不要用导入,要用静态
     public static com.pixelmonmod.pixelmon.api.storage.PlayerPartyStorage getPlayerPartyStorage(net.minecraft.entity.player.ServerPlayerEntity p){
         return com.pixelmonmod.pixelmon.api.storage.StorageProxy.getParty(p);
@@ -45,6 +52,11 @@ public class PixelUtil {
     }
     public static Player getPlayer(net.minecraft.entity.player.EntityPlayerMP entityPlayerMP){
         return entityPlayerMP.getBukkitEntity().getPlayer();
+    }
+    public static Object getPlayer(Player p) throws ClassNotFoundException, InvocationTargetException, IllegalAccessException {
+        Class<?> c = PixelUtil.bukkitVersion.equalsIgnoreCase("1.12.2")?Class.forName("org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity"): Class.forName("org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity");
+        Method method = getMethod(c,"getHandle");
+        return method.invoke(c.cast(p));
     }
     /*
     获取一个对象里边的变量,如果变量类似arraylist这类的你修改了,对象内的也一样,他们是同一个变量
@@ -108,4 +120,8 @@ public class PixelUtil {
         Method met = PixelUtil.getMethod(craftItemStack,"asBukkitCopy",net.minecraft.item.ItemStack.class);
         return (ItemStack) met.invoke(craftItemStack, itemStack);
     }
-}
+    public static World getWorld(org.bukkit.World world) throws Exception {
+        Class<?> c = bukkitVersion.equalsIgnoreCase("1.12.2")?Class.forName("org.bukkit.craftbukkit.v1_12_R1.CraftWorld"):Class.forName("org.bukkit.craftbukkit.v1_16_R3.CraftWorld");
+        Method method = getMethod(c,"getHandle");
+        return (World) method.invoke(c.cast(world));
+    }
