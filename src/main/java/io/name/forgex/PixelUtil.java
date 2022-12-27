@@ -1,11 +1,15 @@
 package io.name.forgex;
 
 import com.pixelmonmod.pixelmon.Pixelmon;
+import net.minecraft.world.World;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class PixelUtil {
@@ -14,11 +18,11 @@ public class PixelUtil {
     public static Method forgeEventMethod;
 
     //forgeevent的获取
-    static String cls = PixelUtil.bukkitVersion.equalsIgnoreCase("1.12.2") ?
+    static String cls = bukkitVersion.equalsIgnoreCase("1.12.2") ?
             "catserver.api.bukkit.event.ForgeEvent" : "catserver.api.bukkit.ForgeEventV2";
     public static Method getForgeEventMethod(){
         try {
-            return PixelUtil.getMethod(Class.forName(cls), "getForgeEvent");
+            return getMethod(Class.forName(cls), "getForgeEvent");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -26,7 +30,7 @@ public class PixelUtil {
     }
 
     public static Object getPlayerPartyStorage(Object p){
-        if (PixelUtil.bukkitVersion.equalsIgnoreCase("1.12.2")){
+        if (bukkitVersion.equalsIgnoreCase("1.12.2")){
             return getPlayerPartyStorage((net.minecraft.entity.player.EntityPlayerMP)p);
         }else{
             return getPlayerPartyStorage((net.minecraft.entity.player.ServerPlayerEntity)p);
@@ -54,7 +58,7 @@ public class PixelUtil {
         return entityPlayerMP.getBukkitEntity().getPlayer();
     }
     public static Object getPlayer(Player p) throws ClassNotFoundException, InvocationTargetException, IllegalAccessException {
-        Class<?> c = PixelUtil.bukkitVersion.equalsIgnoreCase("1.12.2")?Class.forName("org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity"): Class.forName("org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity");
+        Class<?> c = bukkitVersion.equalsIgnoreCase("1.12.2")?Class.forName("org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity"): Class.forName("org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity");
         Method method = getMethod(c,"getHandle");
         return method.invoke(c.cast(p));
     }
@@ -111,17 +115,33 @@ public class PixelUtil {
     //模仿CraftItemStack类中的方法asBukkitCopy
     public static ItemStack asBukkitCopy(net.minecraft.item.ItemStack itemStack) throws Exception {
         Class<?> craftItemStack;
-        if (PixelUtil.bukkitVersion.equalsIgnoreCase("1.12.2")){
+        if (bukkitVersion.equalsIgnoreCase("1.12.2")){
             craftItemStack = Class.forName("org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack");
         }else{
             craftItemStack = Class.forName("org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack");
         }
 
-        Method met = PixelUtil.getMethod(craftItemStack,"asBukkitCopy",net.minecraft.item.ItemStack.class);
+        Method met = getMethod(craftItemStack,"asBukkitCopy",net.minecraft.item.ItemStack.class);
         return (ItemStack) met.invoke(craftItemStack, itemStack);
+    }
+    public static net.minecraft.item.ItemStack asNMSCopy(ItemStack itemStack) throws Exception {
+        Class<?> craftItemStackClass =
+                bukkitVersion.equalsIgnoreCase("1.12.2")?
+                        Class.forName("org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack"):
+                        Class.forName("org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack");
+        Method method = getMethod(craftItemStackClass,"asNMSCopy",ItemStack.class);
+        return (net.minecraft.item.ItemStack) method.invoke(craftItemStackClass,itemStack);
     }
     public static World getWorld(org.bukkit.World world) throws Exception {
         Class<?> c = bukkitVersion.equalsIgnoreCase("1.12.2")?Class.forName("org.bukkit.craftbukkit.v1_12_R1.CraftWorld"):Class.forName("org.bukkit.craftbukkit.v1_16_R3.CraftWorld");
         Method method = getMethod(c,"getHandle");
         return (World) method.invoke(c.cast(world));
     }
+    public static Entity getBukkitEntity(Object entity) throws Exception {
+        Method method = getMethod(entity.getClass(),"getBukkitEntity");
+        return (Entity) method.invoke(entity);
+    }
+    public static Constructor getConstructor(Class<?> c,Class<?>... a) throws NoSuchMethodException {
+        return c.getDeclaredConstructor(a);
+    }
+}
