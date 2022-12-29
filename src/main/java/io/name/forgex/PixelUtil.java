@@ -67,9 +67,9 @@ public class PixelUtil{
     /*注册事件*/
     public static void registerForgeEvent(Plugin plugin){
         if (PixelUtil.getClass("catserver.api.bukkit.event.ForgeEvent")!=null) {
-            plugin.getServer().getPluginManager().registerEvents(new CatEventO(),plugin);
+            plugin.getServer().getPluginManager().registerEvents(new io.name.forgex.forgeEvents.CatEventO(),plugin);
         } else if (PixelUtil.getClass("catserver.api.bukkit.ForgeEventV2")!=null) {
-            plugin.getServer().getPluginManager().registerEvents(new CatEventM(),plugin);
+            plugin.getServer().getPluginManager().registerEvents(new io.name.forgex.forgeEvents.CatEventM(),plugin);
         }else{
             PixelUtil.sendNotForgeEventError(plugin);
             plugin.getServer().getPluginManager().disablePlugin(plugin);
