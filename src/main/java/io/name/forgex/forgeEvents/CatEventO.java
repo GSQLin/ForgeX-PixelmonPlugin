@@ -1,4 +1,4 @@
-package me.gsqlin.pokebanitem.forgeEvents;
+package io.name.forgex.forgeEvents;
 
 import catserver.api.bukkit.event.ForgeEvent;
 import org.bukkit.Bukkit;
