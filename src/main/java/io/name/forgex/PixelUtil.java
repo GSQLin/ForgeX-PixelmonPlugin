@@ -67,9 +67,9 @@ public class PixelUtil{
     /*注册事件*/
     public static void registerForgeEvent(Plugin plugin){
         if (PixelUtil.getClass("catserver.api.bukkit.event.ForgeEvent")!=null) {
-            plugin.getServer().getPluginManager().registerEvents(new io.name.forgex.forgeEvents.CatEventO(),plugin);
+            plugin.getServer().getPluginManager().registerEvents(new me.gsqlin.pretendpoke.forgeEvents.CatEventO(),plugin);
         } else if (PixelUtil.getClass("catserver.api.bukkit.ForgeEventV2")!=null) {
-            plugin.getServer().getPluginManager().registerEvents(new io.name.forgex.forgeEvents.CatEventM(),plugin);
+            plugin.getServer().getPluginManager().registerEvents(new me.gsqlin.pretendpoke.forgeEvents.CatEventM(),plugin);
         }else{
             PixelUtil.sendNotForgeEventError(plugin);
             plugin.getServer().getPluginManager().disablePlugin(plugin);
@@ -193,10 +193,10 @@ public class PixelUtil{
         Object o = craftEntityClass.cast(entity);
         return (net.minecraft.entity.Entity) getHandle(o);
     }
-
+    /*弄只宝可梦,并没有被生成到世界*/
     public static Pokemon createPokemon(String... name) throws ClassNotFoundException, InvocationTargetException, IllegalAccessException {
         Class<?> es = bukkitVersion.equalsIgnoreCase("1.12.2")?
-                    Class.forName("com.pixelmonmod.pixelmon.enums.EnumSpecies"):null;
+                Class.forName("com.pixelmonmod.pixelmon.enums.EnumSpecies"):null;
         Class<?> c = bukkitVersion.equalsIgnoreCase("1.12.2")?
                 Class.forName("com.pixelmonmod.pixelmon.api.pokemon.PokemonFactory"):
                 Class.forName("com.pixelmonmod.api.pokemon.PokemonSpecificationProxy");
@@ -211,5 +211,24 @@ public class PixelUtil{
         }else{
             return (Pokemon) getMethod(o.getClass(),"create").invoke(o);
         }
+    }
+    /*生成宝可梦并获取宝可梦,类型是PixelmonEntity或者是EntityPixelmon,如果世界已经有这个宝可梦了则是直接获取*/
+    public static Object getOrSpawnPixelmon(Pokemon pokemon,Player player) throws InvocationTargetException, IllegalAccessException {
+        World world = getWorld(player.getWorld());
+        Method method = getMethod(pokemon.getClass(),"getOrSpawnPixelmon",World.class,double.class,double.class,double.class);
+        return method.invoke(pokemon,world,player.getLocation().getX(),player.getLocation().getY(),player.getLocation().getZ());
+    }
+    /*从PixelmonEntity或者靠不说了,获取到Pokemon*/
+    public static Pokemon getPokemonData(Object pixelmonEntity) throws InvocationTargetException, IllegalAccessException {
+        return (Pokemon) getMethod(pixelmonEntity.getClass(),bukkitVersion.equalsIgnoreCase("1.12.2")?
+                "getPokemonData":"getPokemon").invoke(pixelmonEntity);
+    }
+    //发送数据包(发包) 需要把包和玩家写进去
+    public static void sendPacket(Player player,Object packet) throws Exception{
+        Object o = getPlayer(player);
+        Object net = getField(o.getClass(),o,"field_71135_a");
+        getMethod(net.getClass(),"func_147359_a",bukkitVersion.equalsIgnoreCase("1.12.2")?
+                Class.forName("net.minecraft.network.Packet"):
+                Class.forName("net.minecraft.network.IPacket")).invoke(net,packet);
     }
 }
